@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres_nest-next-reddit
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: nest-next-reddit-postgres
+      PGDATA: /data-nest-next-reddit/postgres
+    volumes:
+       - postgres:/data-nest-next-reddit/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_nest-next-reddit
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+       - pgadmin:/data-nest-next-reddit/pgadmin
+    ports:
+      - "8080:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  redis:
+    container_name: redis_nest-next-reddit
+    image: redis:latest
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-nest-next-reddit-data:/data-nest-next-reddit/redis
+
+  redis-commander:
+    container_name: redis-commander_nest-next-reddit
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=root
+      - HTTP_PASSWORD=qwerty
+    ports:
+      - 8081:8081
+    depends_on:
+      - redis
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
+    redis-nest-next-reddit-data:
