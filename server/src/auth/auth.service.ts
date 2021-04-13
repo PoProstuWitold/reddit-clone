@@ -103,25 +103,25 @@ export class AuthService {
         return user;
     }
     
-    public async getUserIfRefreshTokenValid(refreshToken, userId) {
+    public async getUserIfRefreshTokenValid(refreshToken: string, userId: number) {
         const user = this.userService.getById(userId)
 
         const tokenFromRedis = await this.redis.get(refreshToken)
 
         if(!tokenFromRedis) {
-            return
+            throw new HttpException('Invalid tokens', HttpStatus.UNAUTHORIZED)
         }
 
         return user
     }
 
-    private async _signAccessToken(userId) {
+    private async _signAccessToken(userId: number) {
         const payload: TokenPayload = { userId }
         const accessToken = this.jwtService.sign(payload);
         return accessToken
     }
 
-    private async _signRefreshToken(userId) {
+    private async _signRefreshToken(userId: number) {
         const payload: TokenPayload = { userId }
         const refreshToken = this.jwtService.sign(
             payload, {
@@ -131,7 +131,7 @@ export class AuthService {
         );
 
 
-        this.redis.set(refreshToken, userId)
+        this.redis.set(refreshToken, userId, 'ex', process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
 
         return refreshToken
     }
@@ -151,5 +151,17 @@ export class AuthService {
             httpOnly: true, 
             sameSite: 'lax'
         })
+    }
+
+    public async setNewTokens(req: Request) {
+        //@ts-ignore
+        const userId = req.user.id
+        const { x_auth_refresh } = req.cookies
+        
+        const accessToken = await this._signAccessToken(userId)
+        const refreshToken = await this._signRefreshToken(userId)
+
+        await this._setTokens(req, accessToken, refreshToken)
+        await this.redis.del(x_auth_refresh)
     }
 }

@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import LoginDTO from './dto/login.dto';
 import RegisterDTO from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import JwtRefreshGuard from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
 declare global{
@@ -47,12 +48,21 @@ export class AuthController {
         await this.authService.logout(req)
     }
 
-    @Get('whoami')
+    @Get('me')
     @UseGuards(JwtAuthGuard)
     public async testAuth(
         @Req() req: Request
     ) {
-        console.log(req.cookies)
         return req.user;
     }
+
+    @Get('refresh')
+    @UseGuards(JwtRefreshGuard)
+    public async refresh(
+        @Req() req: Request
+    ) {
+        this.authService.setNewTokens(req)
+        return req.user
+    }    
+
 }
