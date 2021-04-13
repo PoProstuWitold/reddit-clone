@@ -5,9 +5,6 @@ import * as connectionOptions from './ormconfig';
 @Module({
     imports: [
         TypeOrmModule.forRoot(connectionOptions)
-    ],
-    exports: [
-        TypeOrmModule.forRoot(connectionOptions)
     ]
 })
 export class DatabaseModule {}
