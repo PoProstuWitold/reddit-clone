@@ -9,8 +9,14 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 
 declare global{
     namespace Express {
-        interface Request {
-            userId: number,
+        interface User {
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            email: string;
+            firstName: string;
+            lastName: string;
+            nick: string;
         }
     }
 }

@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { PostModule } from './post/post.module';
+import { SubModule } from './sub/sub.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -29,7 +31,9 @@ import * as Joi from 'joi';
     }),
     DatabaseModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    PostModule,
+    SubModule
   ],
   controllers: [AppController],
   providers: [AppService],

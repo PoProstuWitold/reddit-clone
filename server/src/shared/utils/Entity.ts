@@ -10,7 +10,7 @@ export default abstract class AbstractEntity {
     id: number
     
     @CreateDateColumn()
-    createAt: Date
+    createdAt: Date
     
     @UpdateDateColumn()
     updatedAt: Date

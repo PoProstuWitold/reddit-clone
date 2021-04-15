@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
+import Post from '../post/post.entity';
 import AbstractEntity from 'src/shared/utils/Entity';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 @Entity()
 export default class User extends AbstractEntity {
@@ -20,4 +21,7 @@ export default class User extends AbstractEntity {
     @Exclude()
     @Column()
     public password: string
+
+    @OneToMany(() => Post, (post) => post.user)
+    public posts: Post[]
 }
