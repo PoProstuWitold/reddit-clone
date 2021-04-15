@@ -19,6 +19,12 @@ export default class RegisterDTO {
 
     @IsString()
     @IsNotEmpty()
+    @MinLength(2)
+    @MaxLength(80)
+    nick: string
+
+    @IsString()
+    @IsNotEmpty()
     @MinLength(7)
     @MaxLength(80)
     password: string

@@ -1,11 +1,9 @@
-import { classToPlain, Exclude } from 'class-transformer';
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import AbstractEntity from 'src/shared/utils/Entity';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity()
-export default class User {
-    @PrimaryGeneratedColumn()
-    public id: number
-
+export default class User extends AbstractEntity {
     @Index()
     @Column({ unique: true })
     public email: string
@@ -16,17 +14,10 @@ export default class User {
     @Column()
     public lastName: string
 
+    @Column({ unique: true })
+    public nick: string
+
     @Exclude()
     @Column()
     public password: string
-
-    @CreateDateColumn()
-    public createdAt: Date
-
-    @UpdateDateColumn()
-    public updatedAt: Date
-
-    toJSON() {
-        return classToPlain(this)
-    }
 }
