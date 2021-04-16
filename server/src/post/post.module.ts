@@ -8,6 +8,7 @@ import { SubModule } from 'src/sub/sub.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Post]), SubModule],
   providers: [PostService],
-  controllers: [PostController]
+  controllers: [PostController],
+  exports: [PostService]
 })
 export class PostModule {}

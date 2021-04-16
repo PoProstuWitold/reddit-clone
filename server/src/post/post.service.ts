@@ -33,4 +33,37 @@ export class PostService {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    public async getRecentPosts() {
+        try {
+            const posts = await this.postRepository.find({
+                order: { createdAt: 'DESC' }, 
+                relations: ['user', 'sub'] 
+            })
+
+            return posts
+        } catch (err) {
+            if(err.name.includes('NotFound')) {
+                throw new HttpException(`No posts found`, HttpStatus.NOT_FOUND)
+            }
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    public async getPost(req: Request, relations: boolean = true) {
+        const { identifier, slug } = req.params
+        try {
+            const post = await this.postRepository.findOneOrFail({ 
+                where: {identifier, slug}, 
+                relations: relations ? ['sub', 'user', 'comments', 'comments.user'] : []
+            })
+
+            return post
+        } catch (err) {
+            if(err.name.includes('NotFound')) {
+                throw new HttpException(`Post doesn't exist`, HttpStatus.NOT_FOUND)
+            }
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
 }

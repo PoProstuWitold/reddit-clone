@@ -1,8 +1,9 @@
-import { Column, Entity, Index, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, JoinColumn, BeforeInsert, OneToMany } from 'typeorm';
 import AbstractEntity from '../shared/utils/Entity'
 import { makeId, slugify } from '../shared/utils'
 import User from '../user/user.entity';
 import Sub from '../sub/sub.entity';
+import Comment from '../comment/comment.entity';
 
 @Entity()
 export default class Post extends AbstractEntity {
@@ -30,6 +31,9 @@ export default class Post extends AbstractEntity {
     @ManyToOne(() => Sub, (sub) => sub.posts)
     @JoinColumn({ name: 'sub_name', referencedColumnName: 'name' })
     public sub: Sub
+
+    @OneToMany(() => Comment, (comment) => comment.post)
+    public comments: Comment[]
 
     @BeforeInsert()
     makeIdAndSlug() {

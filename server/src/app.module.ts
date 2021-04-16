@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { SubModule } from './sub/sub.module';
+import { CommentModule } from './comment/comment.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -33,7 +34,8 @@ import * as Joi from 'joi';
     UserModule,
     AuthModule,
     PostModule,
-    SubModule
+    SubModule,
+    CommentModule
   ],
   controllers: [AppController],
   providers: [AppService],
