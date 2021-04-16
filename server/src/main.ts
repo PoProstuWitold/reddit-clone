@@ -14,6 +14,12 @@ async function bootstrap() {
 
   await getConnection().runMigrations()
 
+  app.setGlobalPrefix('/api')
+  app.enableCors({
+    credentials: true,
+    origin: process.env.ORIGIN,
+    optionsSuccessStatus: 200
+  })
   app.useGlobalPipes(new ValidationPipe())
   app.use(cookieParser())
   app.use(express.json())

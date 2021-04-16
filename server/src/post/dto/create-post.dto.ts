@@ -9,7 +9,7 @@ export default class CreatePostDTO {
 
     @IsString()
     @IsOptional()
-    @MaxLength(80)
+    @MaxLength(400)
     body: string
 
     @IsString()
