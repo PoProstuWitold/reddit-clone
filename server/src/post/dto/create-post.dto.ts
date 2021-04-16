@@ -14,7 +14,7 @@ export default class CreatePostDTO {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(7)
+    @MinLength(2)
     @MaxLength(80)
     sub: string
 }

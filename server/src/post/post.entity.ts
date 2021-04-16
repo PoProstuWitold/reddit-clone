@@ -24,7 +24,7 @@ export default class Post extends AbstractEntity {
     public subName: string
 
     @ManyToOne(() => User, (user) => user.posts)
-    @JoinColumn({ name: 'nick', referencedColumnName: 'nick' })
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     public user: User
 
     @ManyToOne(() => Sub, (sub) => sub.posts)

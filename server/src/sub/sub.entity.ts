@@ -22,7 +22,7 @@ export default class Sub extends AbstractEntity {
     public bannerUrn: string
 
     @ManyToOne(() => User)
-    @JoinColumn({ name: 'nick', referencedColumnName: 'nick' })
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     public user: User
 
     @OneToMany(() => Post, (post) => post.sub)
