@@ -41,7 +41,40 @@ export class AuthService {
 
         } catch (err) {
             if(err?.code === PostgresErrorCode.UniqueViolation) {
-                throw new HttpException('User with that email already exists', HttpStatus.BAD_REQUEST)
+                if(err.detail.includes('email')) {
+                    throw new HttpException({
+                        statusCode: 400,
+                        message: [
+                            {
+                                target: {},
+                                "value": "",
+                                "property": "email",
+                                "children": [],
+                                "constraints": {
+                                  "alreadyExist": "email already exist"
+                                }
+                            }
+                        ],
+                        error: 'Bad Request'
+                    }, HttpStatus.BAD_REQUEST)
+                }
+                if(err.detail.includes('nick')) {
+                    throw new HttpException({
+                        statusCode: 400,
+                        message: [
+                            {
+                                target: {},
+                                "value": "",
+                                "property": "nick",
+                                "children": [],
+                                "constraints": {
+                                  "alreadyExist": "nick already exist"
+                                }
+                            }
+                        ],
+                        error: 'Bad Request'
+                    }, HttpStatus.BAD_REQUEST)
+                }
             }
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -139,7 +172,7 @@ export class AuthService {
     private async _setTokens(req: Request, accessToken: any, refreshToken: string) {
         req.res.cookie('x_auth_access', 
             accessToken, {
-            expires: new Date(`${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}s` + Date.now()), 
+            expires: new Date(this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()), 
             httpOnly: true, 
             sameSite: 'lax'
         })
@@ -147,7 +180,7 @@ export class AuthService {
 
         req.res.cookie('x_auth_refresh', 
             refreshToken, {
-            expires: new Date(`${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}s` + Date.now()),
+            expires: new Date(this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()),
             httpOnly: true, 
             sameSite: 'lax'
         })
