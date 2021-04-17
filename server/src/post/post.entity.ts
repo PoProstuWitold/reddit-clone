@@ -4,6 +4,7 @@ import { makeId, slugify } from '../shared/utils'
 import User from '../user/user.entity';
 import Sub from '../sub/sub.entity';
 import Comment from '../comment/comment.entity';
+import { Expose } from 'class-transformer';
 
 @Entity()
 export default class Post extends AbstractEntity {
@@ -34,6 +35,10 @@ export default class Post extends AbstractEntity {
 
     @OneToMany(() => Comment, (comment) => comment.post)
     public comments: Comment[]
+
+    @Expose() get url(): string {
+        return `/r/${this.subName}/${this.identifier}/${this.slug}`
+    }
 
     @BeforeInsert()
     makeIdAndSlug() {
