@@ -38,7 +38,7 @@ const Login: React.FC<loginProps> = ({}) => {
       }
 
     return (
-        <div className="flex">
+        <div className="flex bg-white">
             <Head>
                 <title>Login</title>
             </Head>
