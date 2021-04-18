@@ -5,6 +5,7 @@ import Post from '../post/post.entity';
 import { Repository } from 'typeorm';
 import CreateSubDTO from './dto/create-sub.dto';
 import Sub from './sub.entity';
+import * as fs from 'fs'
 
 @Injectable()
 export class SubService {
@@ -54,6 +55,7 @@ export class SubService {
         try {
             const sub = await this.subRepository
                 .createQueryBuilder('sub')
+                .leftJoinAndSelect('sub.user', 'user')
                 .where('lower(sub.name) = :name', { name: name.toLowerCase() })
                 .getOne()
                 
@@ -77,6 +79,41 @@ export class SubService {
             if(err.name.includes('NotFound')) {
                 throw new HttpException(`No sub found`, HttpStatus.NOT_FOUND)
             }
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+
+
+    public async uploadSubImage(req: Request, name: string, file: Express.Multer.File) {
+        //@ts-ignore
+        const sub: Sub = req.sub
+        const { user } = req
+        const type = req.body.type
+        
+
+        try {
+            if (type !== 'image' && type !== 'banner') {
+                fs.unlinkSync(req.file.path)
+                return req.res.status(400).json({ error: 'Invalid type' })
+            }
+            let oldImageUrn: string = ''
+            if (type === 'image') {
+                oldImageUrn = sub.imageUrn ?? ''
+                sub.imageUrn = req.file.filename
+            } else if (type === 'banner') {
+                oldImageUrn = sub.bannerUrn ?? ''
+                sub.bannerUrn = req.file.filename
+            }
+            await this.subRepository.save(sub)
+
+            if (oldImageUrn !== '') {
+                fs.unlinkSync(`./public/images/${oldImageUrn}`)
+            }
+
+            return sub
+        } catch (err) {
+            console.log(err)
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

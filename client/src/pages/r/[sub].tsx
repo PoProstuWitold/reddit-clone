@@ -1,4 +1,6 @@
+import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { Fragment } from 'react'
 import useSWR from 'swr'
 import PostCard from '../../components/PostCard'
 import { Post } from '../../types'
@@ -24,8 +26,13 @@ export default function Sub() {
     }
 
     return (
-        <div className="container flex pt-5">
-            {sub && <div className="w-160">{postsMarkup}</div>}
-        </div>
+        <Fragment>
+            <Head>
+                <title>{sub ? sub.name : 'reddit: the front page of the internet'}</title>
+            </Head>
+            <div className="container flex pt-5">
+                {sub && <div className="w-160">{postsMarkup}</div>}
+            </div>
+        </Fragment>
     )
 }

@@ -21,6 +21,9 @@ export default class Sub extends AbstractEntity {
     @Column({ nullable: true })
     public bannerUrn: string
 
+    @Column()
+    public userId: number
+
     @ManyToOne(() => User)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     public user: User

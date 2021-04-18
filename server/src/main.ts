@@ -15,6 +15,7 @@ async function bootstrap() {
 
   await getConnection().runMigrations()
 
+  app.use(express.static('/public/images'))
   app.setGlobalPrefix('/api')
   app.useGlobalPipes(new ValidationPipe({
     stopAtFirstError: true,
