@@ -1,10 +1,11 @@
 import '../styles/globals.css'
 import '../styles/icons.css'
 import { AppProps } from 'next/app'
-import React, { Fragment } from 'react'
+import React from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import NavBar from '../components/NavBar'
+import { AuthProvider } from '../context/auth'
 
 axios.defaults.baseURL = 'http://localhost:5000/api'
 axios.defaults.withCredentials = true
@@ -16,10 +17,10 @@ const App: React.FC<AppProps> = ({Component, pageProps}) => {
     const authRoute = authRoutes.includes(pathname)
 
     return (
-        <Fragment>
+        <AuthProvider>
             {!authRoute && <NavBar/>}
             <Component {...pageProps} />
-        </Fragment>
+        </AuthProvider>
     )
 }
 

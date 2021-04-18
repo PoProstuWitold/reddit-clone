@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAuthDispatch, useAuthState } from '../context/auth'
 import axios from 'axios'
 import InputField from '../components/InputField'
 
@@ -17,19 +18,22 @@ const Login: React.FC<loginProps> = ({}) => {
     const [errors, setErrors] = useState<any>({})
 
 
-    const router = useRouter()
+    const dispatch = useAuthDispatch()
+    const { authenticated } = useAuthState()
 
+    const router = useRouter()
+    if (authenticated) router.push('/')
 
     const submitForm = async (event: FormEvent) => {
         event.preventDefault()
     
         try {
-            await axios.post('/auth/login', {
+            const res = await axios.post('/auth/login', {
                 email,
                 password
             })
-    
-          router.push('/')
+            dispatch('LOGIN', res.data)
+            router.push('/')
         } catch (err) {
             if(err.message.includes(400) || err.message.includes(401)) {
                 err.message.includes(400) ? setErrors(err.response.data) : setErrors({message: 'Field is required'})

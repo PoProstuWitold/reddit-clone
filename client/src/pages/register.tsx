@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAuthDispatch, useAuthState } from '../context/auth'
 import axios from 'axios'
 import InputField from '../components/InputField'
 import { mapErrors } from '../utils'
@@ -21,9 +22,11 @@ const Register: React.FC<registerProps> = ({}) => {
 
     const [errors, setErrors] = useState<any>({})
 
+    const dispatch = useAuthDispatch()
+    const { authenticated } = useAuthState()
 
     const router = useRouter()
-
+    if (authenticated) router.push('/')
 
     const submitForm = async (event: FormEvent) => {
         event.preventDefault()
@@ -34,15 +37,16 @@ const Register: React.FC<registerProps> = ({}) => {
         }
     
         try {
-            await axios.post('/auth/register', {
+            const res = await axios.post('/auth/register', {
                 email,
                 nick,
                 firstName,
                 lastName,
                 password
             })
-    
-          router.push('/')
+            
+            dispatch('REGISTER', res.data)
+            router.push('/')
         } catch (err) {
             setErrors(mapErrors(err.response.data))
         }
