@@ -55,7 +55,7 @@ export class PostService {
         try {
             const post = await this.postRepository.findOneOrFail({ 
                 where: {identifier, slug}, 
-                relations: relations ? ['sub', 'user', 'comments', 'comments.user'] : []
+                relations: relations ? ['sub', 'user'] : []
             })
 
             return post

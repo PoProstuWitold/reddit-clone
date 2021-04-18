@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { SubModule } from './sub/sub.module';
 import { CommentModule } from './comment/comment.module';
+import { VoteModule } from './vote/vote.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -33,7 +34,8 @@ import * as Joi from 'joi';
     AuthModule,
     PostModule,
     SubModule,
-    CommentModule
+    CommentModule,
+    VoteModule
   ],
   controllers: [],
   providers: [],
