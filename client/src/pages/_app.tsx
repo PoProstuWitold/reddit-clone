@@ -6,6 +6,16 @@ import axios from 'axios'
 import { useRouter } from 'next/router'
 import NavBar from '../components/NavBar'
 import { AuthProvider } from '../context/auth'
+import { SWRConfig } from 'swr'
+
+const fetcher = async (url: string) => {
+    try {
+        const res = await axios.get(url)
+        return res.data
+    } catch (err) {
+        throw err.response.data
+    }
+}
 
 axios.defaults.baseURL = 'http://localhost:5000/api'
 axios.defaults.withCredentials = true
@@ -17,10 +27,17 @@ const App: React.FC<AppProps> = ({Component, pageProps}) => {
     const authRoute = authRoutes.includes(pathname)
 
     return (
+        <SWRConfig value={{
+            fetcher,
+            dedupingInterval: 5000
+        }}>
         <AuthProvider>
             {!authRoute && <NavBar/>}
-            <Component {...pageProps} />
+            <div className={authRoute ? '' : 'pt-12'}>
+                <Component {...pageProps} />
+            </div>
         </AuthProvider>
+        </SWRConfig>
     )
 }
 

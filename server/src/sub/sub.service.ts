@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
+import Post from '../post/post.entity';
 import { Repository } from 'typeorm';
 import CreateSubDTO from './dto/create-sub.dto';
 import Sub from './sub.entity';
@@ -9,7 +10,9 @@ import Sub from './sub.entity';
 export class SubService {
     constructor(
         @InjectRepository(Sub)
-        private subRepository: Repository<Sub>
+        private subRepository: Repository<Sub>,
+        @InjectRepository(Post)
+        private postRepository: Repository<Post>
     ) {}
 
     public async createSub(req: Request, subData: CreateSubDTO) {
@@ -45,5 +48,36 @@ export class SubService {
 
     public async findOneSubOrFail(name: string): Promise<Sub | null> {
         return await this.subRepository.findOneOrFail({ name: name })
+    }
+
+    public async getSub(req: Request, name: string) {
+        try {
+            const sub = await this.subRepository
+                .createQueryBuilder('sub')
+                .where('lower(sub.name) = :name', { name: name.toLowerCase() })
+                .getOne()
+                
+            const posts = await this.postRepository.find({
+                where: { sub },
+                order: { createdAt: 'DESC' },
+                relations: ['user']
+            })
+            
+            sub.posts = posts
+            let user: any
+
+            if (req.user) {
+                user = req.user
+                posts.forEach((p) => p.setUserVote(user))
+            }
+
+            return sub
+        } catch (err) {
+            console.log(err)
+            if(err.name.includes('NotFound')) {
+                throw new HttpException(`No sub found`, HttpStatus.NOT_FOUND)
+            }
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 }
