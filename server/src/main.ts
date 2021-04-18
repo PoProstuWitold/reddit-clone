@@ -8,14 +8,14 @@ import * as express from 'express'
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser'
 import { ValidationError } from 'class-validator';
+import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn']
   })
 
   await getConnection().runMigrations()
-
-  app.use(express.static('/public/images'))
+  app.use('/public', express.static(join(__dirname, '..', 'public')));
   app.setGlobalPrefix('/api')
   app.useGlobalPipes(new ValidationPipe({
     stopAtFirstError: true,
