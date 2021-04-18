@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import Post from '../post/post.entity';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import CreateSubDTO from './dto/create-sub.dto';
 import Sub from './sub.entity';
 import * as fs from 'fs'
@@ -112,6 +112,28 @@ export class SubService {
             }
 
             return sub
+        } catch (err) {
+            console.log(err)
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    public async getTopSubs() {
+        try {
+            const imageUrlExp = `COALESCE('${process.env.APP_URL}/public/images/' || s.image_urn , 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y')`
+            const subs = await getConnection()
+                .createQueryBuilder()
+                .select(
+                    `s.title, s.name, ${imageUrlExp} as "imageUrl", count(p.id) as "postCount"`
+                )
+                .from(Sub, 's')
+                .leftJoin(Post, 'p', `s.name = p.sub_name`)
+                .groupBy('s.title, s.name, "imageUrl"')
+                .orderBy(`"postCount"`, 'DESC')
+                .limit(5)
+                .execute()
+
+            return subs
         } catch (err) {
             console.log(err)
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)

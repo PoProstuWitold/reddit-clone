@@ -29,6 +29,7 @@ export class PostController {
     }
 
     @Get('/:identifier/:slug')
+    @UseGuards(OptionalJwtAuthGuard)
     public async getPost(
         @Req() req: Request
     ) {

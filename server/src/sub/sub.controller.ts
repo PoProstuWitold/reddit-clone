@@ -59,4 +59,9 @@ export class SubController {
         // return response;
         return this.subService.uploadSubImage(req, name, file)
     }
+
+    @Get('/subs/top')
+    public async topSubs() {
+        return this.subService.getTopSubs()
+    }
 }

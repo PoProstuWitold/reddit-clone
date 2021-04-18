@@ -34,7 +34,6 @@ export default class Post extends AbstractEntity {
     @JoinColumn({ name: 'sub_name', referencedColumnName: 'name' })
     public sub: Sub
 
-    @Exclude()
     @OneToMany(() => Comment, (comment) => comment.post, { eager: true })
     public comments: Comment[]
 

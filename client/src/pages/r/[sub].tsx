@@ -7,6 +7,7 @@ import classNames from 'classnames'
 import PostCard from '../../components/PostCard'
 import { Post, Sub } from '../../types'
 import { useAuthState } from '../../context/auth'
+import SideBar from '../../components/SideBar'
 import axios from 'axios'
 
 
@@ -133,6 +134,7 @@ export default function SubPage() {
                 {/* Posts & Sidebar */}
                 <div className="container flex pt-5">
                     <div className="w-160">{postsMarkup}</div>
+                    <SideBar sub={sub} />
                 </div>
                 </Fragment>
             )}

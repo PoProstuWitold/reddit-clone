@@ -1,23 +1,12 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import axios from 'axios'
 import { Post } from '../types'
 import classNames from 'classnames'
 import Link from 'next/link'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { ActionButton } from './ActionButton'
 dayjs.extend(relativeTime)
-interface ActionButton {
-    children: Element[] | ReactNode[]
-}
-
-const ActionButton: React.FC<ActionButton> = ({ children }) => {
-    return (
-        <div className="px-1 py-1 mr-1 text-xs text-gray-400 rounded cursor-pointer hover:bg-gray-200">
-            {children}
-        </div>
-    )
-}
-
 interface PostCardProps {
     post: Post
 }
@@ -40,6 +29,10 @@ const PostCard: React.FC<PostCardProps> = ({
     },
 }: PostCardProps) => {
     const vote = async (value: number) => {
+
+        // if vote is the same reset vote
+        if (value === userVote) value = 0
+
         try {
             const res = await axios.post('/vote', {
                 postIdentifier: identifier,

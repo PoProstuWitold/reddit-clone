@@ -22,7 +22,7 @@ const Login: React.FC<loginProps> = ({}) => {
     const { authenticated } = useAuthState()
 
     const router = useRouter()
-    if (authenticated) router.push('/')
+    if (authenticated) router.back()
 
     const submitForm = async (event: FormEvent) => {
         event.preventDefault()
@@ -33,7 +33,7 @@ const Login: React.FC<loginProps> = ({}) => {
                 password
             })
             dispatch('LOGIN', res.data)
-            router.push('/')
+            router.back()
         } catch (err) {
             if(err.message.includes(400) || err.message.includes(401)) {
                 err.message.includes(400) ? setErrors(err.response.data) : setErrors({message: 'Field is required'})

@@ -45,7 +45,7 @@ export class PostService {
             if (req.user) {
                 user = req.user
                 posts.forEach((p) => p.setUserVote(user))
-              }
+            }
             // posts.forEach(p => {
             //     p.comments = undefined
             // })
@@ -65,6 +65,12 @@ export class PostService {
                 where: {identifier, slug}, 
                 relations: relations ? ['sub', 'user'] : []
             })
+            let user: any
+            
+            if (req.user) {
+                user = req.user
+                post.setUserVote(user)
+            }
 
             return post
         } catch (err) {
