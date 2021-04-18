@@ -1,3 +1,5 @@
+import { Sub } from "./Sub";
+
 export interface Post {
     identifier: string
     title: string
@@ -15,6 +17,7 @@ export interface Post {
     }
     createdAt: string
     updatedAt: string
+    sub?: Sub
     // Virtual fields
     url: string
     voteScore?: number
