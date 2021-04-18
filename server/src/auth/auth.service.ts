@@ -173,7 +173,7 @@ export class AuthService {
         req.res.cookie('x_auth_access', 
             accessToken, {
             expires: new Date(this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()), 
-            httpOnly: true, 
+            httpOnly: false, 
             sameSite: 'lax'
         })
         // req.res.setHeader('Bearer', accessToken)
@@ -181,7 +181,7 @@ export class AuthService {
         req.res.cookie('x_auth_refresh', 
             refreshToken, {
             expires: new Date(this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()),
-            httpOnly: true, 
+            httpOnly: false, 
             sameSite: 'lax'
         })
     }

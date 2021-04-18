@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import CreatePostDTO from './dto/create-post.dto';
 import { PostService } from './post.service';
 
@@ -20,8 +21,11 @@ export class PostController {
     }
 
     @Get('posts')
-    public async getRecentPosts() {
-        return this.postService.getRecentPosts()
+    @UseGuards(OptionalJwtAuthGuard)
+    public async getRecentPosts(
+        @Req() req: Request
+    ) {
+        return this.postService.getRecentPosts(req)
     }
 
     @Get('/:identifier/:slug')

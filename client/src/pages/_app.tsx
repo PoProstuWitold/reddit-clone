@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import '../styles/icons.css'
 import { AppProps } from 'next/app'
 import React, { Fragment } from 'react'
 import axios from 'axios'

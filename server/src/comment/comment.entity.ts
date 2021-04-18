@@ -4,7 +4,7 @@ import { makeId } from '../shared/utils'
 import User from '../user/user.entity';
 import Post from '../post/post.entity';
 import Vote from '../vote/vote.entity';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity()
 export default class Comment extends AbstractEntity {
@@ -28,6 +28,11 @@ export default class Comment extends AbstractEntity {
     @Exclude()
     @OneToMany(() => Vote, (vote) => vote.comment, { eager: true })
     public votes: Vote[]
+
+    @Expose() 
+    get voteScore(): number {
+        return this.votes?.reduce((prev, curr) => prev + (curr.value || 0), 0)
+    }
 
     protected userVote: number
     setUserVote(user: User) {

@@ -34,13 +34,21 @@ export class PostService {
         }
     }
 
-    public async getRecentPosts() {
+    public async getRecentPosts(req: Request) {
         try {
             const posts = await this.postRepository.find({
                 order: { createdAt: 'DESC' }, 
                 relations: ['user', 'sub'] 
             })
-
+            let user: any
+            
+            if (req.user) {
+                user = req.user
+                posts.forEach((p) => p.setUserVote(user))
+              }
+            // posts.forEach(p => {
+            //     p.comments = undefined
+            // })
             return posts
         } catch (err) {
             if(err.name.includes('NotFound')) {
