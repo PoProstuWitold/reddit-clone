@@ -1,3 +1,4 @@
+import { FormEvent, useState } from 'react';
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -6,7 +7,7 @@ import Image from 'next/image'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import classNames from 'classnames'
-import { Post } from '../../../../types'
+import { Post, Comment } from '../../../../types'
 import SideBar from '../../../../components/SideBar'
 import axios from 'axios'
 import { useAuthState } from '../../../../context/auth'
@@ -15,39 +16,68 @@ import { ActionButton } from '../../../../components/ActionButton'
 dayjs.extend(relativeTime)
 
 export default function PostPage() {
+    // local state
+    const [newComment, setNewComment] = useState('')
+
     // global state
-    const { authenticated } = useAuthState()
+    const { authenticated, user } = useAuthState()
 
     // Utils
     const router = useRouter()
     const { identifier, sub, slug } = router.query
 
-    const { data: post, error } = useSWR<Post>(
+    const { data: post, error, revalidate: revalidatePost } = useSWR<Post>(
         identifier && slug ? `/post/${identifier}/${slug}` : null
     )
+    const { data: comments, revalidate: revalidateComments } = useSWR<Comment[]>(
+        identifier && slug ? `/comment/${identifier}/${slug}/` : null
+      )
     
     if (error) router.push('/')
 
-    const vote = async (value: number) => {
+    const vote = async (value: number, comment?: Comment) => {
         // if not logged in go to login
         if (!authenticated) router.push('/login')
 
         // if vote is the same reset vote
-        if (value === post.userVote) value = 0
+        if (
+            (!comment && value === post.userVote) ||
+            (comment && comment.userVote === value)
+        ) value = 0
 
         try {
             const res = await axios.post('/vote', {
                 postIdentifier: identifier,
+                commentIdentifier: comment?.identifier,
                 slug,
                 value,
             })
 
+            revalidateComments()
+            revalidatePost()
             console.log(res.data)
         } catch (err) {
             console.log(err)
         }
     }
 
+    const submitComment = async (event: FormEvent) => {
+        event.preventDefault()
+        if (newComment.trim() === '') return
+    
+        try {
+            await axios.post(`/comment/${post.identifier}/${post.slug}/`, {
+                body: newComment,
+            })
+        
+            setNewComment('')
+        
+            revalidateComments()
+            revalidatePost()
+        } catch (err) {
+            console.log(err)
+        }
+    }
   return (
     <>
         <Head>
@@ -78,7 +108,7 @@ export default function PostPage() {
                 {post && (
                 <div className="flex">
                     {/* Vote section */}
-                    <div className="w-10 py-3 text-center rounded-l">
+                    <div className="flex-shrink-0 w-10 py-2 text-center rounded-l">
                     {/* Upvote */}
                     <div
                         className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500"
@@ -103,7 +133,7 @@ export default function PostPage() {
                         ></i>
                     </div>
                     </div>
-                    <div className="p-2">
+                    <div className="py-2 pr-2">
                     <div className="flex items-center">
                         <p className="text-xs text-gray-500">
                         Posted by
@@ -147,6 +177,101 @@ export default function PostPage() {
                     </div>
                 </div>
                 )}
+                {/* Comment input area */}
+                <div className="pl-10 pr-6 mb-4">
+                  {authenticated ? (
+                    <div>
+                      <p className="mb-1 text-xs">
+                        Comment as{' '}
+                        <Link href={`/u/${user.nick}`}>
+                          <a className="font-semibold text-blue-500">
+                            {user.nick}
+                          </a>
+                        </Link>
+                      </p>
+                      <form onSubmit={submitComment}>
+                        <textarea
+                          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-gray-600"
+                          onChange={(e) => setNewComment(e.target.value)}
+                          value={newComment}
+                        ></textarea>
+                        <div className="flex justify-end">
+                          <button
+                            className="px-3 py-1 blue button"
+                            disabled={newComment.trim() === ''}
+                          >
+                            Comment
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between px-2 py-4 border border-gray-200 rounded">
+                      <p className="font-semibold text-gray-400">
+                        Log in or sign up to leave a comment
+                      </p>
+                      <div>
+                        <Link href="/login">
+                          <a className="px-4 py-1 mr-4 hollow blue button">
+                            Login
+                          </a>
+                        </Link>
+                        <Link href="/register">
+                          <a className="px-4 py-1 blue button">Sign Up</a>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <hr />
+                {/* Comments feed */}
+                {comments?.map((comment) => (
+                  <div className="flex" key={comment.identifier}>
+                    {/* Vote section */}
+                    <div className="flex-shrink-0 w-10 py-2 text-center rounded-l">
+                      {/* Upvote */}
+                      <div
+                        className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500"
+                        onClick={() => vote(1, comment)}
+                      >
+                        <i
+                          className={classNames('icon-arrow-up', {
+                            'text-red-500': comment.userVote === 1,
+                          })}
+                        ></i>
+                      </div>
+                      <p className="text-xs font-bold">{comment.voteScore}</p>
+                      {/* Downvote */}
+                      <div
+                        className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-blue-600"
+                        onClick={() => vote(-1, comment)}
+                      >
+                        <i
+                          className={classNames('icon-arrow-down', {
+                            'text-blue-600': comment.userVote === -1,
+                          })}
+                        ></i>
+                      </div>
+                    </div>
+                    <div className="py-2 pr-2">
+                      <p className="mb-1 text-xs leading-none">
+                        <Link href={`/u/${comment.user.nick}`}>
+                          <a className="mr-1 font-bold hover:underline">
+                            {comment.user.nick}
+                          </a>
+                        </Link>
+                        <span className="text-gray-600">
+                          {`
+                            ${comment.voteScore}
+                            points •
+                            ${dayjs(comment.createdAt).fromNow()}
+                          `}
+                        </span>
+                      </p>
+                      <p>{comment.body}</p>
+                    </div>
+                  </div>
+                ))}
             </div>
             </div>
             {/* Sidebar */}

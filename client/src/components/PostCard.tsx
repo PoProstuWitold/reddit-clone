@@ -6,9 +6,12 @@ import Link from 'next/link'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ActionButton } from './ActionButton'
+import { useAuthState } from '../context/auth'
+import { useRouter } from 'next/router'
 dayjs.extend(relativeTime)
 interface PostCardProps {
     post: Post
+    revalidate?: Function
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -23,13 +26,20 @@ const PostCard: React.FC<PostCardProps> = ({
         userVote,
         commentCount,
         url,
+        sub,
         user: {
             nick
         }
     },
+    revalidate
 }: PostCardProps) => {
-    const vote = async (value: number) => {
+    const { authenticated } = useAuthState()
 
+    const router = useRouter()
+    const isInSubPage = router.pathname === '/r/[sub]'
+
+    const vote = async (value: number) => {
+        if (!authenticated) router.push('/login')
         // if vote is the same reset vote
         if (value === userVote) value = 0
 
@@ -39,7 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 slug,
                 value,
             })
-        
+            if (revalidate) revalidate()
             console.log(res.data)
         } catch (err) {
             console.log(err)
@@ -76,9 +86,11 @@ const PostCard: React.FC<PostCardProps> = ({
         {/* Post data section */}
         <div className="w-full p-2">
             <div className="flex items-center">
+            {!isInSubPage && (
+            <>
             <Link href={`/r/${subName}`}>
                 <img
-                    src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+                    src={sub.imageUrl}
                     className="w-6 h-6 mr-1 rounded-full cursor-pointer"
                 />
             </Link>
@@ -87,8 +99,10 @@ const PostCard: React.FC<PostCardProps> = ({
                     /r/{subName}
                 </a>
             </Link>
+            <span className="mx-1">•</span>
+            </>
+            )}
             <p className="text-xs text-gray-500">
-                <span className="mx-1">•</span>
                 Posted by
                 <Link href={`/u/${nick}`}>
                 <a className="mx-1 hover:underline">/u/{nick}</a>

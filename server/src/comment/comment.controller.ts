@@ -1,6 +1,7 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { CommentService } from './comment.service';
 import CreateCommentDTO from './dto/create-comment.dto';
 
@@ -18,4 +19,13 @@ export class CommentController {
     ) {
         return await this.commentService.commentOnPost(req, commentData)
     }
+
+    @Get('/:identifier/:slug')
+    @UseGuards(OptionalJwtAuthGuard)
+    public async getPostComments(
+        @Req() req: Request
+    ) {
+        return this.commentService.getPostComments(req)
+    }
+    
 }

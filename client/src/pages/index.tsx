@@ -21,7 +21,7 @@ interface indexProps {
 
 const index: React.FC<indexProps> = ({}) => {
 
-    const { data: posts } = useSWR('/post/posts')
+    const { data: posts, revalidate: revalidatePosts } = useSWR('/post/posts')
     const { data: topSubs } = useSWR('/sub/subs/top')
     // const [posts, setPosts] = useState<Post[]>([])
     // useEffect(() => {
@@ -42,7 +42,7 @@ const index: React.FC<indexProps> = ({}) => {
             {/* Posts feed */}
             <div className="w-160">
             {posts?.map((post: Post) => (
-                <PostCard post={post} key={post.identifier} />
+                <PostCard post={post} key={post.identifier} revalidate={revalidatePosts} />
             ))}
             </div>
             {/* Sidebar */}
@@ -59,11 +59,12 @@ const index: React.FC<indexProps> = ({}) => {
                   key={sub.name}
                   className="flex items-center px-4 py-2 text-xs border-b"
                 >
-                  <div className="mr-2 overflow-hidden bg-cover rounded-full cursor-pointer">
+                  <div className="mr-2">
                     <Link href={`/r/${sub.name}`}>
                       <Image
                         src={sub.imageUrl}
                         alt="Sub"
+                        className="bg-cover rounded-full cursor-pointer"
                         width={(6 * 16) / 4}
                         height={(6 * 16) / 4}
                       />

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import axios from 'axios'
 import RedditLogo from'../images/reddit.svg'
 import { useAuthState, useAuthDispatch } from '../context/auth'
@@ -11,6 +11,28 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({}) => {
 
     const { authenticated, loading } = useAuthState()
+
+    async function loadUser() {     
+        try {
+            const res = await axios.get('/auth/refresh')
+            dispatch('REFRESH', res.data)
+        } catch (err) {
+            console.log(err)
+        } finally {
+            dispatch('STOP_LOADING')
+        }
+    }
+
+    const INTERVAL_DELAY = 1000 * 275
+    useEffect(() => {
+        loadUser()
+        if(authenticated) {
+        const interval = setInterval(() => {
+            loadUser()
+            }, INTERVAL_DELAY)
+            return () => clearInterval(interval)
+        }
+    }, [])
     const dispatch = useAuthDispatch()
     const logout = () => {
         axios.post('/auth/logout')

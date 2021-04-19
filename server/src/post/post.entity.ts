@@ -34,10 +34,11 @@ export default class Post extends AbstractEntity {
     @JoinColumn({ name: 'sub_name', referencedColumnName: 'name' })
     public sub: Sub
 
+    @Exclude({ toPlainOnly: true })
     @OneToMany(() => Comment, (comment) => comment.post, { eager: true })
     public comments: Comment[]
 
-    @Exclude()
+    @Exclude({ toPlainOnly: true })
     @OneToMany(() => Vote, (vote) => vote.post, { eager: true })
     public votes: Vote[]
 
