@@ -25,7 +25,7 @@ export default function SubPage() {
 
     const subName = router.query.sub
 
-    const { data: sub, error, revalidate } = useSWR<Sub>(subName ? `/sub/${subName}` : null)
+    const { data: sub, error, revalidate: revalidatePosts } = useSWR<Sub>(subName ? `/sub/${subName}` : null)
 
     useEffect(() => {
         if (!sub) return
@@ -50,7 +50,7 @@ export default function SubPage() {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
         
-            revalidate()
+            revalidatePosts()
         } catch (err) {
             console.log(err)
         }
@@ -65,7 +65,7 @@ export default function SubPage() {
         postsMarkup = <p className="text-lg text-center">No posts submitted yet</p>
     } else {
         postsMarkup = sub.posts.map((post: Post) => (
-        <PostCard key={post.identifier} post={post} />
+        <PostCard key={post.identifier} post={post} revalidate={revalidatePosts}/>
         ))
     }
 

@@ -25,7 +25,6 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
 
     const INTERVAL_DELAY = 1000 * 275
     useEffect(() => {
-        loadUser()
         if(authenticated) {
         const interval = setInterval(() => {
             loadUser()

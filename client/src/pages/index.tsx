@@ -20,7 +20,12 @@ interface indexProps {
 }
 
 const index: React.FC<indexProps> = ({}) => {
-
+    const isBrowser = () => typeof window !== "undefined"
+    console.log(isBrowser())
+    if (isBrowser()) {
+        window.addEventListener('load', () => revalidatePosts())
+    }
+    
     const { data: posts, revalidate: revalidatePosts } = useSWR('/post/posts')
     const { data: topSubs } = useSWR('/sub/subs/top')
     // const [posts, setPosts] = useState<Post[]>([])
