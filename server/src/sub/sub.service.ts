@@ -139,4 +139,26 @@ export class SubService {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    public async searchSub(req: Request, name: string) {
+        try {
+        
+            // reactJS , reactjs
+            const subs = await this.subRepository
+                .createQueryBuilder()
+                // react => rea
+                .where('LOWER(name) LIKE :name', {
+                    name: `${name.toLowerCase().trim()}%`,
+                })
+                .getMany()
+            
+                return subs
+        } catch (err) {
+                console.log(err)
+                if(err.name.includes('NotFound')) {
+                    throw new HttpException(`Sub doesn't exist`, HttpStatus.NOT_FOUND)
+                }
+                throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
 }

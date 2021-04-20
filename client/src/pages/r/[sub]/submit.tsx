@@ -37,7 +37,7 @@ export default function submit() {
     return (
         <div className="container flex pt-5">
         <Head>
-            <title>Submit to Readit</title>
+            <title>Submit to Reddit</title>
         </Head>
         <div className="w-160">
             <div className="p-4 bg-white rounded">

@@ -64,4 +64,14 @@ export class SubController {
     public async topSubs() {
         return this.subService.getTopSubs()
     }
+
+    @Get('search/:name')
+    @UseGuards(OptionalJwtAuthGuard)
+    public async searchSub(
+        @Req() req: Request,
+        @Param('name') name: string
+    ) {
+        // console.log(name)
+        return await this.subService.searchSub(req, name)
+    }
 }
