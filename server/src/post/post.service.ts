@@ -36,9 +36,14 @@ export class PostService {
 
     public async getRecentPosts(req: Request) {
         try {
+            const currentPage: number = (req.query.page || 0) as number
+            const postsPerPage: number = (req.query.count || 8) as number
+
             const posts = await this.postRepository.find({
                 order: { createdAt: 'DESC' }, 
-                relations: ['user', 'sub'] 
+                relations: ['user', 'sub'],
+                skip: currentPage * postsPerPage,
+                take: postsPerPage, 
             })
             let user: any
             
