@@ -10,6 +10,21 @@ class MyDocument extends Document {
         return (
             <Html>
                 <Head>
+                <link rel="icon" type="image/x-icon" href="/reddit.svg" />
+                <meta charSet="utf-8" />
+                    
+                    <meta property="og:site_name" content="reddit" />
+                    {/* <meta property="twitter:site" content="@readit" /> */}
+                    <meta property="twitter:card" content="summary" />
+                    <meta property="og:type" content="website" />
+                    <meta
+                        property="og:image"
+                        content={`http://localhost:3000/reddit.svg`}
+                    />
+                    <meta
+                        property="twitter:image"
+                        content={`http://localhost:3000/reddit.svg`}
+                    />
                     <link rel="preconnect" href="https://fonts.gstatic.com" />
                     <link
                         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300;400;500;600&display=swap"

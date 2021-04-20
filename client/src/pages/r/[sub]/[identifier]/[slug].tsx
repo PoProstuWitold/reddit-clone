@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -18,6 +18,7 @@ dayjs.extend(relativeTime)
 export default function PostPage() {
     // local state
     const [newComment, setNewComment] = useState('')
+    const [description, setDescription] = useState('')
 
     // global state
     const { authenticated, user } = useAuthState()
@@ -34,6 +35,13 @@ export default function PostPage() {
       )
     
     if (error) router.push('/')
+    
+    useEffect(() => {
+      if (!post) return
+      let desc = post.body || post.title
+      desc = desc.substring(0, 158).concat('..') // Hello world..
+      setDescription(desc)
+    }, [post])
 
     const vote = async (value: number, comment?: Comment) => {
         // if not logged in go to login
@@ -82,6 +90,11 @@ export default function PostPage() {
     <>
         <Head>
             <title>{post?.title}</title>
+            <meta name="description" content={description}></meta>
+            <meta property="og:description" content={description} />
+            <meta property="og:title" content={post?.title} />
+            <meta property="twitter:description" content={description} />
+            <meta property="twitter:title" content={post?.title} />
         </Head>
         <Link href={`/r/${sub}`}>
             <a>

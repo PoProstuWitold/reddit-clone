@@ -38,10 +38,13 @@ const index: React.FC<indexProps> = ({}) => {
       setSize: setPage,
       isValidating,
       revalidate: revalidatePosts,
-    } = useSWRInfinite<Post[]>((index) => `/post/posts?page=${index}`)
+    } = useSWRInfinite<Post[]>((index) => `/post/posts?page=${index}`, { revalidateAll: true })
+    const isInitialLoading = !data && !error
 
     const posts: Post[] = data ? [].concat(...data) : []
-
+    const description =
+      "Reddit is a network of communities based on people's interests. Find communities you're interested in, and become part of an online community!"
+    const title = 'readit: the front page of the internet'
   useEffect(() => {
     if (!posts || posts.length === 0) return
 
@@ -81,12 +84,18 @@ const index: React.FC<indexProps> = ({}) => {
     return (
         <Fragment>
         <Head>
+            <title>{title}</title>
+            <meta name="description" content={description}></meta>
+            <meta property="og:description" content={description} />
+            <meta property="og:title" content={title} />
+            <meta property="twitter:description" content={description} />
+            <meta property="twitter:title" content={title} />
             <title>reddit: the front page of the internet</title>
         </Head>
         <div className="container flex pt-4">
             {/* Posts feed */}
             <div className="w-full px-4 md:w-160 md:p-0">
-            {isValidating && <p className="text-lg text-center">Loading..</p>}
+            {isInitialLoading && <p className="text-lg text-center">Loading..</p>}
             {posts?.map((post: Post) => (
                 <PostCard post={post} key={post.identifier} revalidate={revalidatePosts} />
             ))}
