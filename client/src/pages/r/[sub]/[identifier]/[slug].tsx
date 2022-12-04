@@ -3,19 +3,18 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import Image from 'next/image'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import classNames from 'classnames'
 import { Post, Comment } from '../../../../types'
-import SideBar from '../../../../components/SideBar'
+import { Sidebar } from '../../../../components/SideBar'
 import axios from 'axios'
 import { useAuthState } from '../../../../context/auth'
 import { ActionButton } from '../../../../components/ActionButton'
 
 dayjs.extend(relativeTime)
 
-export default function PostPage() {
+const PostPage = () => {
     // local state
     const [newComment, setNewComment] = useState('')
     const [description, setDescription] = useState('')
@@ -27,10 +26,10 @@ export default function PostPage() {
     const router = useRouter()
     const { identifier, sub, slug } = router.query
 
-    const { data: post, error, revalidate: revalidatePost } = useSWR<Post>(
+    const { data: post, error } = useSWR<Post>(
         identifier && slug ? `/post/${identifier}/${slug}` : null
     )
-    const { data: comments, revalidate: revalidateComments } = useSWR<Comment[]>(
+    const { data: comments } = useSWR<Comment[]>(
         identifier && slug ? `/comment/${identifier}/${slug}/` : null
       )
     
@@ -49,7 +48,7 @@ export default function PostPage() {
 
         // if vote is the same reset vote
         if (
-            (!comment && value === post.userVote) ||
+            (!comment && value === post!.userVote) ||
             (comment && comment.userVote === value)
         ) value = 0
 
@@ -60,9 +59,6 @@ export default function PostPage() {
                 slug,
                 value,
             })
-
-            revalidateComments()
-            revalidatePost()
             console.log(res.data)
         } catch (err) {
             console.log(err)
@@ -74,14 +70,12 @@ export default function PostPage() {
         if (newComment.trim() === '') return
     
         try {
-            await axios.post(`/comment/${post.identifier}/${post.slug}/`, {
+            await axios.post(`/comment/${post!.identifier}/${post!.slug}/`, {
                 body: newComment,
             })
         
             setNewComment('')
         
-            revalidateComments()
-            revalidatePost()
         } catch (err) {
             console.log(err)
         }
@@ -97,22 +91,20 @@ export default function PostPage() {
             <meta property="twitter:title" content={post?.title} />
         </Head>
         <Link href={`/r/${sub}`}>
-            <a>
             <div className="flex items-center w-full h-20 p-8 bg-blue-500">
                 <div className="container flex">
                 {post && (
-                    <div className="w-8 h-8 mr-2 overflow-hidden rounded-full">
-                    <Image
-                        src={post.sub.imageUrl}
-                        height={(8 * 16) / 4}
-                        width={(8 * 16) / 4}
+                    <div >
+                    <img
+                      src={`http://localhost:5000/public/images/${post.sub!.imageUrn}`}
+                      className="w-8 h-8 mr-2 rounded-full"
+                        alt="image"
                     />
                     </div>
                 )}
-                <p className="text-xl font-semibold text-white">/r/{sub}</p>
+                <p className="text-xl font-semibold text-white">r/{sub}</p>
                 </div>
             </div>
-            </a>
         </Link>
         <div className="container flex pt-5">
             {/* Post */}
@@ -150,15 +142,11 @@ export default function PostPage() {
                     <div className="flex items-center">
                         <p className="text-xs text-gray-500">
                         Posted by
-                        <Link href={`/u/${post.user.nick}`}>
-                            <a className="mx-1 hover:underline">
+                        <Link href={`/u/${post.user.nick}`} className="mx-1 hover:underline">
                             /u/{post.user.nick}
-                            </a>
                         </Link>
-                        <Link href={post.url}>
-                            <a className="mx-1 hover:underline">
-                            {dayjs(post.createdAt).fromNow()}
-                            </a>
+                        <Link href={post.url} className="mx-1 hover:underline">
+                          {dayjs(post.createdAt).fromNow()}
                         </Link>
                         </p>
                     </div>
@@ -169,14 +157,12 @@ export default function PostPage() {
                     {/* Actions */}
                     <div className="flex">
                         <Link href={post.url}>
-                        <a>
                             <ActionButton>
                             <i className="mr-1 fas fa-comment-alt fa-xs"></i>
                             <span className="font-bold">
                                 {post.commentCount} Comments
                             </span>
                             </ActionButton>
-                        </a>
                         </Link>
                         <ActionButton>
                         <i className="mr-1 fas fa-share fa-xs"></i>
@@ -196,10 +182,8 @@ export default function PostPage() {
                     <div>
                       <p className="mb-1 text-xs">
                         Comment as{' '}
-                        <Link href={`/u/${user.nick}`}>
-                          <a className="font-semibold text-blue-500">
-                            {user.nick}
-                          </a>
+                        <Link href={`/u/${user!.nick}`} className="font-semibold text-blue-500">
+                          {user!.nick}
                         </Link>
                       </p>
                       <form onSubmit={submitComment}>
@@ -224,13 +208,11 @@ export default function PostPage() {
                         Log in or sign up to leave a comment
                       </p>
                       <div>
-                        <Link href="/login">
-                          <a className="px-4 py-1 mr-4 hollow blue button">
-                            Login
-                          </a>
+                        <Link href="/login" className="px-4 py-1 mr-4 hollow blue button">
+                          Login
                         </Link>
-                        <Link href="/register">
-                          <a className="px-4 py-1 blue button">Sign Up</a>
+                        <Link href="/register" className="px-4 py-1 blue button">
+                          Sign Up
                         </Link>
                       </div>
                     </div>
@@ -268,10 +250,8 @@ export default function PostPage() {
                     </div>
                     <div className="py-2 pr-2">
                       <p className="mb-1 text-xs leading-none">
-                        <Link href={`/u/${comment.user.nick}`}>
-                          <a className="mr-1 font-bold hover:underline">
-                            {comment.user.nick}
-                          </a>
+                        <Link href={`/u/${comment.user.nick}`} className="mr-1 font-bold hover:underline">
+                          {comment.user.nick}
                         </Link>
                         <span className="text-gray-600">
                           {`
@@ -288,8 +268,10 @@ export default function PostPage() {
             </div>
             </div>
             {/* Sidebar */}
-            {post && <SideBar sub={post.sub} />}
+            {post && post.sub && <Sidebar sub={post.sub} />}
         </div>
     </>
   )
 }
+
+export default PostPage

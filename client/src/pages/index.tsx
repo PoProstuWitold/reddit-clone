@@ -1,17 +1,16 @@
-import React, { 
-    Fragment, 
+import { 
     useEffect, useState 
 } from 'react'
-import Image from 'next/image'
 import { Sub, Post } from '../types'
 import Link from 'next/link'
 //import axios from 'axios'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 // import { GetServerSideProps } from 'next'
-import PostCard from '../components/PostCard'
+import { PostCard } from '../components/PostCard'
 import Head from 'next/head'
-import useSWR, { useSWRInfinite } from 'swr'
+import useSWR from 'swr'
+import useSWRInfinite from 'swr/infinite'
 import { useAuthState } from '../context/auth'
 dayjs.extend(relativeTime)
 
@@ -19,13 +18,11 @@ interface indexProps {
 
 }
 
-const index: React.FC<indexProps> = ({}) => {
-    const [observedPost, setObservedPost] = useState('')
+const Index: React.FC<indexProps> = ({}) => {
+    const [observedPost, setObservedPost] = useState<any>('')
     const isBrowser = () => typeof window !== "undefined"
     console.log(isBrowser())
-    if (isBrowser()) {
-        window.addEventListener('load', () => revalidatePosts())
-    }
+    
     const { authenticated } = useAuthState()
     // const { data: posts, revalidate: revalidatePosts } = useSWR('/post/posts')
     const { data: topSubs } = useSWR('/sub/subs/top')
@@ -33,15 +30,13 @@ const index: React.FC<indexProps> = ({}) => {
     const {
       data,
       error,
-      mutate,
       size: page,
       setSize: setPage,
       isValidating,
-      revalidate: revalidatePosts,
     } = useSWRInfinite<Post[]>((index) => `/post/posts?page=${index}`, { revalidateAll: true })
     const isInitialLoading = !data && !error
 
-    const posts: Post[] = data ? [].concat(...data) : []
+    const posts: Post[] = data ? [].concat(...data as any) : []
     const description =
       "Reddit is a network of communities based on people's interests. Find communities you're interested in, and become part of an online community!"
     const title = 'readit: the front page of the internet'
@@ -52,6 +47,7 @@ const index: React.FC<indexProps> = ({}) => {
 
     if (id !== observedPost) {
       setObservedPost(id)
+      //@ts-ignore
       observeElement(document.getElementById(id))
     }
   }, [posts])
@@ -80,9 +76,9 @@ const index: React.FC<indexProps> = ({}) => {
     //         })
     //         .catch((err) => console.log(err))
     // }, [])
-
+    
     return (
-        <Fragment>
+        <>
         <Head>
             <title>{title}</title>
             <meta name="description" content={description}></meta>
@@ -97,7 +93,7 @@ const index: React.FC<indexProps> = ({}) => {
             <div className="w-full px-4 md:w-160 md:p-0">
             {isInitialLoading && <p className="text-lg text-center">Loading..</p>}
             {posts?.map((post: Post) => (
-                <PostCard post={post} key={post.identifier} revalidate={revalidatePosts} />
+                <PostCard post={post} key={post.identifier} />
             ))}
             {isValidating && posts.length > 0 && (
               <p className="text-lg text-center">Loading More</p>
@@ -119,21 +115,16 @@ const index: React.FC<indexProps> = ({}) => {
                 >
                   <div className="mr-2">
                     <Link href={`/r/${sub.name}`}>
-                      <a>
-                      <Image
-                        src={sub.imageUrl}
+                      <img
+
+                        src={`http://localhost:5000/public/images/${sub.imageUrl.split('/')[3]}`}
                         alt="Sub"
-                        className="bg-cover rounded-full cursor-pointer"
-                        width={(6 * 16) / 4}
-                        height={(6 * 16) / 4}
+                        className="w-8 h-8 mr-2 bg-cover rounded-full cursor-pointer"
                       />
-                      </a>
                     </Link>
                   </div>
-                  <Link href={`/r/${sub.name}`}>
-                    <a className="font-bold hover:cursor-pointer">
-                      /r/{sub.name}
-                    </a>
+                  <Link href={`/r/${sub.name}`} className="font-bold hover:cursor-pointer">
+                      r/{sub.name}
                   </Link>
                   <p className="ml-auto font-med">{sub.postCount}</p>
                 </div>
@@ -141,29 +132,17 @@ const index: React.FC<indexProps> = ({}) => {
             </div>
             {authenticated && (
               <div className="p-4 border-t-2">
-                <Link href="/subs/create">
-                  <a className="w-full px-2 py-1 blue button">
+                <Link href="/subs/create" className="w-full px-2 py-1 blue button">
                     Create Community
-                  </a>
                 </Link>
               </div>
             )}
           </div>
         </div>
         </div>
-        </Fragment>
+        </>
     )
 
 }
 
-// export const getServerSideProps: GetServerSideProps = async () => {
-//   try {
-//     const res = await axios.get('/post/posts')
-
-//     return { props: { posts: res.data } }
-//   } catch (err) {
-//     return { props: { error: 'Something went wrong' } }
-//   }
-// }
-
-export default index
+export default Index

@@ -29,9 +29,9 @@ const connectionOptions: ConnectionOptions = {
     // migrationsRun: true,
     logging: ['warn', 'error'],
     logger: process.env.NODE_ENV === PROD_ENV ? 'file' : 'debug',
-    migrations: [
-        join(__dirname, 'migrations/*{.ts,.js}')
-    ],
+    // migrations: [
+    //     join(__dirname, 'migrations/*{.ts,.js}')
+    // ],
     cli: {
         migrationsDir: 'src/database/migrations'
     }

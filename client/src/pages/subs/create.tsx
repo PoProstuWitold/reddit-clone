@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react'
 import classNames from 'classnames'
 import { useRouter } from 'next/router'
 
-export default function create() {
+const Create = () => {
     const [name, setName] = useState('')
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
@@ -20,13 +20,14 @@ export default function create() {
         const res = await axios.post('/sub/create', { name, title, description })
 
         router.push(`/r/${res.data.name}`)
-        } catch (err) {
+        } catch (err: any) {
             console.log(err)
             setErrors(err.response.data)
         }
     }
 
     return (
+        <>
             <div className="flex bg-white">
             <Head>
                 <title>Create a Community</title>
@@ -99,5 +100,8 @@ export default function create() {
                 </div>
             </div>
             </div>
+        </>
     )
 }
+
+export default Create

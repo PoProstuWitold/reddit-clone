@@ -1,31 +1,40 @@
-# nest-next-reddit
-Fullstack Nest, Next reddit-like training app
+# Reddit Clone
 
-## Usage
+Fullstack Nest, Next Reddit-like app with API for auth, subredits, commenting, posting and voting for posts
 
-Run Docker containers and use the package manager (**yarn** or **npm**) to install dependencies in server and client directories.
+# Usage
 
-### 1. Docker
+###  0.
+Create **``.env``** file in **``server``** root directory and fill with following:
+
+```code
+# DATABASE
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=admin
+DATABASE_PASSWORD=admin
+DATABASE_DBNAME=nest-next-reddit-postgres
+
+# SERVER
+PORT=5000
+ORIGIN=http://localhost:3000
+
+# JWT
+JWT_ACCESS_TOKEN_SECRET=secret1
+JWT_ACCESS_TOKEN_EXPIRATION_TIME='10m'
+JWT_REFRESH_TOKEN_SECRET=secret2
+JWT_REFRESH_TOKEN_EXPIRATION_TIME='30d'
+``` 
+
+## With Docker
+
+### 1. Run containers
 ```bash
-cd server 
-```
-```bash
-docker-compose up 
+docker compose up 
 ```
 
-### 2. Server setup
-```bash
-cd server 
-```
-```bash
-npm install 
-# OR 
-yarn
-```
-
-####  2.1
-Create ``.env`` file in server root directory and fill with following:
-
+## Without Docker
+### 1. Change contents of ``DATABASE`` in env file
 ```code
 # DATABASE
 DATABASE_HOST=
@@ -33,27 +42,42 @@ DATABASE_PORT=
 DATABASE_USER=
 DATABASE_PASSWORD=
 DATABASE_DBNAME=
+```
 
-# SERVER
-PORT=
-ORIGIN=
-
-# JWT
-JWT_ACCESS_TOKEN_SECRET=
-JWT_ACCESS_TOKEN_EXPIRATION_TIME=
-JWT_REFRESH_TOKEN_SECRET=
-JWT_REFRESH_TOKEN_EXPIRATION_TIME=
-``` 
-
-### 3. Client setup
+### 2. Install Server dependencies and run
 ```bash
-cd client 
+cd server
 ```
 ```bash
-npm install 
-# OR 
-yarn
+npm install/pnpm install/yarn
 ```
+```bash
+nest start --watch
+```
+
+### 3. Install Client dependencies and run
+```bash
+cd client
+```
+```bash
+npm install/pnpm install/yarn
+```
+```bash
+next dev
+```
+
+
+
+
+## FEATURES
+- Basic auth
+- Creating subreddits
+- Creating posts
+- Commenting
+- Voting on posts and comments
+
+## DISCLAIMER
+Project is discountinued in favor of newer ones
 
 ## License
-[ISC](https://www.isc.org/licenses/)
+[ISC](https://opensource.org/licenses/ISC)

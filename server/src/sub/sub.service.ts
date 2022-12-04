@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Request } from 'express';
 import Post from '../post/post.entity';
 import { getConnection, Repository } from 'typeorm';
 import CreateSubDTO from './dto/create-sub.dto';
@@ -16,7 +15,7 @@ export class SubService {
         private postRepository: Repository<Post>
     ) {}
 
-    public async createSub(req: Request, subData: CreateSubDTO) {
+    public async createSub(req: any, subData: CreateSubDTO) {
         const { user } = req
         const { name, title, description } = subData
 
@@ -51,7 +50,7 @@ export class SubService {
         return await this.subRepository.findOneOrFail({ name: name })
     }
 
-    public async getSub(req: Request, name: string) {
+    public async getSub(req: any, name: string) {
         try {
             const sub = await this.subRepository
                 .createQueryBuilder('sub')
@@ -85,7 +84,7 @@ export class SubService {
 
 
 
-    public async uploadSubImage(req: Request, name: string, file: Express.Multer.File) {
+    public async uploadSubImage(req: any, name: string, file: Express.Multer.File) {
         //@ts-ignore
         const sub: Sub = req.sub
         const { user } = req

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseIn
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { SubService } from './sub.service';
 import CreateSubDTO from './dto/create-sub.dto'
-import { Request } from 'express';
+import type { Express } from 'express'
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -19,7 +19,7 @@ export class SubController {
     @Post('create')
     @UseGuards(JwtAuthGuard)
     public async createSub(
-        @Req() req: Request,
+        @Req() req: any,
         @Body() subData: CreateSubDTO
     ) {
         return await this.subService.createSub(req, subData)
@@ -28,7 +28,7 @@ export class SubController {
     @Get(':name')
     @UseGuards(OptionalJwtAuthGuard)
     public async getSub(
-        @Req() req: Request,
+        @Req() req: any,
         @Param('name') name: string
     ) {
         // console.log(name)

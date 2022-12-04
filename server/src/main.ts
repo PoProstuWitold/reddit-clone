@@ -9,6 +9,7 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser'
 import { ValidationError } from 'class-validator';
 import { join } from 'path';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn']

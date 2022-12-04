@@ -67,8 +67,7 @@ export class AuthController {
     public async refresh(
         @Req() req: Request
     ) {
-        this.authService.setNewTokens(req)
-        return req.user
+        return this.authService.setNewTokens(req)
     }    
 
 }

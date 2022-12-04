@@ -1,10 +1,10 @@
 import '../styles/globals.css'
 import '../styles/icons.css'
-import { AppProps } from 'next/app'
+import type { AppProps } from 'next/app'
 import React from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-import NavBar from '../components/NavBar'
+import { NavBar } from '../components/NavBar'
 import { AuthProvider } from '../context/auth'
 import { SWRConfig } from 'swr'
 
@@ -12,7 +12,7 @@ const fetcher = async (url: string) => {
     try {
         const res = await axios.get(url)
         return res.data
-    } catch (err) {
+    } catch (err: any) {
         throw err.response.data
     }
 }
@@ -20,7 +20,7 @@ const fetcher = async (url: string) => {
 axios.defaults.baseURL = 'http://localhost:5000/api'
 axios.defaults.withCredentials = true
 
-const App: React.FC<AppProps> = ({Component, pageProps}) => {
+const MyApp: React.FC<AppProps> = ({Component, pageProps}) => {
 
     const { pathname } = useRouter()
     const authRoutes = ['/register', '/login']
@@ -41,4 +41,4 @@ const App: React.FC<AppProps> = ({Component, pageProps}) => {
     )
 }
 
-export default App
+export default MyApp

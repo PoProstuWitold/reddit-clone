@@ -3,14 +3,14 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import PostCard from '../../components/PostCard'
+import { PostCard } from '../../components/PostCard'
 import { Post, Comment } from '../../types'
 
-export default function user() {
+const User = () => {
     const router = useRouter()
     const nick = router.query.nick
 
-    const { data, error, revalidate: revalidateAll } = useSWR<any>(nick ? `/user/${nick}` : null)
+    const { data, error } = useSWR<any>(nick ? `/user/${nick}` : null)
     if (error) router.push('/')
 
     if (data) console.log(data)
@@ -26,7 +26,7 @@ export default function user() {
                 {data.submissions.map((submission: any) => {
                 if (submission.type === 'Post') {
                     const post: Post = submission
-                    return <PostCard post={post} key={post.identifier} revalidate={revalidateAll}/>
+                    return <PostCard post={post} key={post.identifier} />
                 } else {
                     const comment: Comment = submission
                     return (
@@ -42,16 +42,12 @@ export default function user() {
                             {comment.user.nick}
 
                             <span> commented on </span>
-                            <Link href={comment.post.url}>
-                            <a className="font-semibold cursor-pointer hover:underline">
-                                {comment.post.title}
-                            </a>
+                            <Link href={comment.post!.url} className="font-semibold cursor-pointer hover:underline">
+                                {comment.post!.title}
                             </Link>
                             <span className="mx-1">•</span>
-                            <Link href={`/r/${comment.post.subName}`}>
-                            <a className="text-black cursor-pointer hover:underline">
-                                /r/{comment.post.subName}
-                            </a>
+                            <Link href={`/r/${comment.post!.subName}`} className="text-black cursor-pointer hover:underline">
+                                r/{comment.post!.subName}
                             </Link>
                         </p>
                         <hr />
@@ -85,3 +81,5 @@ export default function user() {
         </>
     )
 }
+
+export default User

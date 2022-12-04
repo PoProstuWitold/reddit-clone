@@ -139,18 +139,22 @@ export class AuthService {
     public async getUserIfRefreshTokenValid(refreshToken: string, userId: number) {
         const user = this.userService.getById(userId)
 
-        const tokenFromRedis = await this.redis.get(refreshToken)
+        // const tokenFromRedis = await this.redis.get(refreshToken)
 
-        if(!tokenFromRedis) {
-            throw new HttpException('Invalid tokens', HttpStatus.UNAUTHORIZED)
-        }
+        // if(!tokenFromRedis) {
+        //     throw new HttpException('Invalid tokens', HttpStatus.UNAUTHORIZED)
+        // }
 
         return user
     }
 
     private async _signAccessToken(userId: number) {
         const payload: TokenPayload = { userId }
-        const accessToken = this.jwtService.sign(payload);
+        const accessToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+            expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')
+        })
+
         return accessToken
     }
 
@@ -159,12 +163,12 @@ export class AuthService {
         const refreshToken = this.jwtService.sign(
             payload, {
                 secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-                expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}s`
+                expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')
             }
         );
 
 
-        this.redis.set(refreshToken, userId, 'ex', process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
+        this.redis.setex(refreshToken, userId, process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME)
 
         return refreshToken
     }
@@ -172,7 +176,7 @@ export class AuthService {
     private async _setTokens(req: Request, accessToken: any, refreshToken: string) {
         req.res.cookie('x_auth_access', 
             accessToken, {
-            expires: new Date(this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()), 
+            maxAge: 1000 * 60 * 60 * 24 * 30, 
             httpOnly: true, 
             sameSite: 'lax'
         })
@@ -180,7 +184,7 @@ export class AuthService {
 
         req.res.cookie('x_auth_refresh', 
             refreshToken, {
-            expires: new Date(this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 + Date.now()),
+            maxAge: 1000 * 60 * 60 * 24 * 30,
             httpOnly: true, 
             sameSite: 'lax'
         })
@@ -196,5 +200,7 @@ export class AuthService {
 
         await this._setTokens(req, accessToken, refreshToken)
         await this.redis.del(x_auth_refresh)
+        const user = this.userService.getById(userId)
+        return user
     }
 }

@@ -2,16 +2,15 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, ChangeEvent, createRef, useEffect, useState } from 'react'
 import useSWR from 'swr'
-import Image from 'next/image'
 import classNames from 'classnames'
-import PostCard from '../../components/PostCard'
+import { PostCard } from '../../components/PostCard'
 import { Post, Sub } from '../../types'
 import { useAuthState } from '../../context/auth'
-import SideBar from '../../components/SideBar'
+import { Sidebar } from '../../components/SideBar'
 import axios from 'axios'
 
 
-export default function SubPage() {
+const SubPage = () => {
 
     // local state
     const [ownSub, setOwnSub] = useState(false)
@@ -25,7 +24,7 @@ export default function SubPage() {
 
     const subName = router.query.sub
 
-    const { data: sub, error, revalidate: revalidatePosts } = useSWR<Sub>(subName ? `/sub/${subName}` : null)
+    const { data: sub, error } = useSWR<Sub>(subName ? `/sub/${subName}` : null)
 
     useEffect(() => {
         if (!sub) return
@@ -34,23 +33,21 @@ export default function SubPage() {
 
     const openFileInput = (type: string) => {
         if (!ownSub) return
-        fileInputRef.current.name = type
-        fileInputRef.current.click()
+        fileInputRef.current!.name = type
+        fileInputRef.current!.click()
     }
     const uploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files[0]
-    
+        const file = event.target.files![0]
+        
         const formData = new FormData()
         formData.append('file', file)
         //@ts-ignore
         formData.append('type', fileInputRef.current.name)
     
         try {
-            await axios.post<Sub>(`/sub/${sub.name}/upload`, formData, {
+            await axios.post<Sub>(`/sub/${sub!.name}/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
-        
-            revalidatePosts()
         } catch (err) {
             console.log(err)
         }
@@ -65,12 +62,12 @@ export default function SubPage() {
         postsMarkup = <p className="text-lg text-center">No posts submitted yet</p>
     } else {
         postsMarkup = sub.posts.map((post: Post) => (
-        <PostCard key={post.identifier} post={post} revalidate={revalidatePosts}/>
+        <PostCard key={post.identifier} post={post} />
         ))
     }
 
     return (
-        <div>
+        <>
             <Head>
                 <title>{sub ? sub.name : 'reddit: the front page of the internet'}</title>
             </Head>
@@ -95,7 +92,7 @@ export default function SubPage() {
                         <div
                         className="h-56 bg-blue-500"
                         style={{
-                            backgroundImage: `url(${sub.bannerUrl})`,
+                            backgroundImage: `url(http://localhost:5000/public/images/${sub.bannerUrn})`,
                             backgroundRepeat: 'no-repeat',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
@@ -109,15 +106,13 @@ export default function SubPage() {
                     <div className="h-20 bg-white">
                     <div className="container relative flex">
                         <div className="absolute" style={{ top: -15 }}>
-                        <Image
-                            src={sub.imageUrl}
+                        <img
+                            src={`http://localhost:5000/public/images/${sub!.imageUrn}`}
                             alt="Sub"
                             className={classNames('rounded-full', {
-                            'cursor-pointer': ownSub,
+                            'cursor-pointer w-16 h-16 mr-2 rounded-full': ownSub,
                             })}
                             onClick={() => openFileInput('image')}
-                            width={70}
-                            height={70}
                         />
                         </div>
                         <div className="pt-1 pl-24">
@@ -125,7 +120,7 @@ export default function SubPage() {
                             <h1 className="mb-1 text-3xl font-bold">{sub.title}</h1>
                         </div>
                         <p className="text-sm font-bold text-gray-500">
-                            /r/{sub.name}
+                            r/{sub.name}
                         </p>
                         </div>
                     </div>
@@ -134,10 +129,12 @@ export default function SubPage() {
                 {/* Posts & Sidebar */}
                 <div className="container flex pt-5">
                     <div className="w-160">{postsMarkup}</div>
-                    <SideBar sub={sub} />
+                    <Sidebar sub={sub} />
                 </div>
                 </Fragment>
             )}
-            </div>
+        </>
     )
 }
+
+export default SubPage
